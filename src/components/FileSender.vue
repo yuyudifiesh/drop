@@ -186,18 +186,19 @@ const initPeerConnection = () => {
   }
 }
 
-// 生成SDP Offer
+// 生成SDP Offer - 只生成文本内容不刷新二维码
 const generateOffer = async () => {
   try {
     // 创建Offer
     const offer = await peerConnection.value.createOffer()
     // 设置本地描述
     await peerConnection.value.setLocalDescription(offer)
-    // 保存Offer
+    // 保存Offer到文本变量
     offerSdp.value = JSON.stringify(offer)
-    // 生成二维码
-    await generateQRCode(offerSdp.value)
     console.log('Offer已生成:', offerSdp.value)
+    
+    // 提示用户可通过显示调试信息查看Offer内容
+    alert('Offer已生成，请点击"显示调试信息"查看完整内容')
   } catch (error) {
     console.error('生成Offer失败:', error)
   }
