@@ -190,7 +190,7 @@ const initPeerConnection = () => {
   }
 }
 
-// 生成SDP Offer - 只生成文本内容，二维码只在初始化时生成一次
+// 生成SDP Offer - 自动显示生成的Offer内容
 const generateOffer = async () => {
   try {
     // 创建Offer
@@ -201,6 +201,9 @@ const generateOffer = async () => {
     offerSdp.value = JSON.stringify(offer)
     console.log('Offer已生成:', offerSdp.value)
     
+    // 自动显示Offer内容
+    showOfferDebug.value = true
+    
     // 只在组件初始化时生成一次二维码
     if (!initialOfferGenerated.value) {
       try {
@@ -208,14 +211,12 @@ const generateOffer = async () => {
         initialOfferGenerated.value = true
       } catch (qrError) {
         console.warn('二维码生成失败，转为纯文本模式:', qrError)
-        qrCodeData.value = '<p class="text-warning">二维码生成失败，已转为纯文本模式，请使用"显示调试信息"查看Offer内容</p>'
+        qrCodeData.value = '<p class="text-warning">二维码生成失败，已转为纯文本模式，请查看下方Offer内容</p>'
       }
     }
     
-    // 提示用户可通过显示调试信息查看Offer内容
-    if (!initialOfferGenerated.value) {
-      alert('Offer已生成，请使用接收端扫描二维码或点击"显示调试信息"查看完整内容')
-    }
+    // 提示用户Offer已生成并自动显示
+    alert('Offer已生成，内容已自动显示在页面上')
   } catch (error) {
     console.error('生成Offer失败:', error)
   }
