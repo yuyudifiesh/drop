@@ -117,6 +117,9 @@ const offerSdp = ref('')
 const answerSdp = ref('')
 const qrCodeData = ref('')
 
+// 二维码生成状态控制
+const initialOfferGenerated = ref(false)
+
 // 调试相关状态
 const showOfferDebug = ref(false)
 
@@ -154,10 +157,11 @@ const initPeerConnection = () => {
   // 监听ICE候选事件
   peerConnection.value.onicecandidate = (event) => {
     if (event.candidate) {
-      // ICE候选收集完成后，可以更新Offer
+      // ICE候选收集完成后，只更新Offer文本但不生成二维码
+      // 避免数据量过大导致二维码生成失败
       if (peerConnection.value && peerConnection.value.localDescription) {
         offerSdp.value = JSON.stringify(peerConnection.value.localDescription)
-        generateQRCode(offerSdp.value)
+        // 不再在这里生成二维码，只在initialOfferGenerated为false时生成一次
       }
     }
   }
@@ -186,7 +190,7 @@ const initPeerConnection = () => {
   }
 }
 
-// 生成SDP Offer - 只生成文本内容不刷新二维码
+// 生成SDP Offer - 只生成文本内容，二维码只在初始化时生成一次
 const generateOffer = async () => {
   try {
     // 创建Offer
@@ -197,8 +201,21 @@ const generateOffer = async () => {
     offerSdp.value = JSON.stringify(offer)
     console.log('Offer已生成:', offerSdp.value)
     
+    // 只在组件初始化时生成一次二维码
+    if (!initialOfferGenerated.value) {
+      try {
+        await generateQRCode(offerSdp.value)
+        initialOfferGenerated.value = true
+      } catch (qrError) {
+        console.warn('二维码生成失败，转为纯文本模式:', qrError)
+        qrCodeData.value = '<p class="text-warning">二维码生成失败，已转为纯文本模式，请使用"显示调试信息"查看Offer内容</p>'
+      }
+    }
+    
     // 提示用户可通过显示调试信息查看Offer内容
-    alert('Offer已生成，请点击"显示调试信息"查看完整内容')
+    if (!initialOfferGenerated.value) {
+      alert('Offer已生成，请使用接收端扫描二维码或点击"显示调试信息"查看完整内容')
+    }
   } catch (error) {
     console.error('生成Offer失败:', error)
   }
