@@ -209,18 +209,19 @@ const generateQRCode = async (data) => {
     // 为了调试，打印出用于生成二维码的数据
     console.log('生成二维码的数据:', data)
     
-    // 使用toDataURL方法生成二维码图片URL，这更简单可靠
+    // 使用toDataURL方法生成二维码图片URL，增加尺寸和更高的纠错级别以提高识别率
     const qrCodeUrl = await QRCode.toDataURL(data, {
-      width: 200,
-      margin: 1,
+      width: 300,
+      margin: 4,  // 增加边距使二维码更容易识别
+      errorCorrectionLevel: 'H',  // 最高纠错级别
       color: {
         dark: '#000000',
         light: '#ffffff'
       }
     })
     
-    // 创建img标签来显示二维码
-    qrCodeData.value = `<img src="${qrCodeUrl}" alt="连接二维码" style="width: 200px; height: 200px;" />`
+    // 创建img标签来显示二维码，增加尺寸并添加样式以提高清晰度
+    qrCodeData.value = `<img src="${qrCodeUrl}" alt="连接二维码" style="width: 300px; height: 300px; display: block; margin: 0 auto; border: 5px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.1);" />`
     console.log('二维码生成成功')
   } catch (error) {
     console.error('生成二维码失败:', error)
@@ -388,9 +389,10 @@ onUnmounted(() => {
 }
 
 .qr-code {
-  border: 1px solid #ddd;
-  padding: 10px;
+  padding: 20px;
   background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
 /* 按钮组样式 */
